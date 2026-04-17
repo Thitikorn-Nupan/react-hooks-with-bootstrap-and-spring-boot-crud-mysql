@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
-@CommonRestAPI(configPath = {"/api/students","/api/student"}, configOrigins = "http://localhost:5173")
+@CommonRestAPI(configPath = {"/api/students","/api/student"}, configOrigins = {"http://localhost:5173","http://localhost:3000"})
 public class StudentController {
 
     private static final Logger log = LoggerFactory.getLogger(StudentController.class);
