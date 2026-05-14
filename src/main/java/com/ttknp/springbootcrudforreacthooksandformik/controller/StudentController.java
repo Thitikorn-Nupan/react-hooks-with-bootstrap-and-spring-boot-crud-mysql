@@ -58,8 +58,7 @@ public class StudentController {
     @PostMapping(value = "/insertOne",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     private ResponseEntity<ResponseObject<Boolean>> insertOne(@RequestParam("file") MultipartFile multipartFile ,
                                                               @RequestPart Student student) {
-        log.info("Insert one student RequestPart : {}", student);
-        log.info("Insert one student RequestPart : {}", multipartFile);
+        log.info("Insert one student RequestPart : student = {} multipartFile = {}", student,multipartFile);
         return ResponseEntity
                 .status((Short) CommonStatus.CREATE[0])
                 .body(ResponseObject.builder()
@@ -73,8 +72,7 @@ public class StudentController {
     @PutMapping(value = "/updateOne")
     private ResponseEntity<ResponseObject<Boolean>> updateOne(@RequestParam("file") @Nullable MultipartFile multipartFile,
                                                               @RequestPart Student student) {
-        log.info("Update one student as RequestPart : {}", student);
-        log.info("Update one student as RequestPart : {}", multipartFile);
+        log.info("Update one student as RequestPart : student = {} multipartFile = {}", student,multipartFile);
         return ResponseEntity
                 .status((Short) CommonStatus.ACCEPTED[0])
                 .body(ResponseObject.builder()
