@@ -3,7 +3,7 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import {CrudStudentComponent} from "./components/program/CrudStudentComponent.tsx";
 import './App.css'
 
-function App() {
+function App() : JSX.Element {
     return (
         <BrowserRouter>
             <MenuComponent/>

@@ -1,12 +1,14 @@
 import {Component} from "react";
-import reactLogo from '/src/assets/react.svg'
 import {Link} from "react-router-dom";
+import reactLogo from '/src/assets/react.svg'
 
 type RouteLink = {
     label: string
     to: string
 }
+
 export class MenuComponent extends Component {
+
     private readonly routeLinks : { routeLink:RouteLink,routeLinks:RouteLink[] }[] = [
         {routeLink : {label : 'home' , to : ''} , routeLinks : []},
         {routeLink : {label : 'about' , to : ''} , routeLinks : []},
@@ -16,7 +18,8 @@ export class MenuComponent extends Component {
             ]
         },
     ]
-    render() {
+
+    render() : JSX.Element {
         return (
             <nav className="navbar navbar-expand-lg bg-light">
                 <div className="container-fluid">

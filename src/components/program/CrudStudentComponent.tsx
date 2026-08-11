@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 import {Field, Form, Formik} from "formik";
 import axios from "axios";
 
-export function CrudStudentComponent() {
+export function CrudStudentComponent(): JSX.Element {
     const studentDefaultValue: Student = {
         birthdayYear: 0,
         email: "",
@@ -19,7 +19,8 @@ export function CrudStudentComponent() {
     const [student, setStudent] = useState<Student>(studentDefaultValue);
     const [mode, setMode] = useState<{ mode: 'update' | 'insert' | 'delete' }>();
     const [studentHeader, setStudentHeader] = useState<string[]>()
-    const [defaultBaseUrl] = useState<string>(import.meta.env.VITE_BASE_URL2);
+    //const [defaultBaseUrl] = useState<string>(import.meta.env.VITE_BASE_URL2);
+    const [defaultBaseUrl] = useState<string | string[] | undefined>(process.env.BASE_URL); // http://localhost:8080/api/student,http://localhost:8080/api/students
     let imageProfile: File | null = null
     let birthdayYear: Date | null = null
 
@@ -27,47 +28,43 @@ export function CrudStudentComponent() {
         loadStudents().then(() => console.log('loaded students'))
     }, [mode])
 
-    async function loadStudents() {
+    async function loadStudents(): Promise<void> {
         // console.log(import.meta.env.VITE_BASE_URL1) // can't be array env as VITE_BASE_URL[0]
-        await axios.get(defaultBaseUrl + '/selectAll') // Replace with your API URL
-            .then(async (response: any) => {
-                const responseData = response.data;
-                if (responseData.status == 200) {
-                    const students = responseData.data;
-                    // optional
-                    students.forEach((student : any) => {
-                        student.imageProfile = student.imageProfile.replace('B:\\practice-nodejs-php-typescript-angular\\applications\\Project-React\\lab-react-hooks-and-formik-for-spring-boot-crud\\src\\assets\\images\\', 'src/assets/images/');
-                    })
-                    setStudents(students);
-                    setStudentHeader(Object.keys(responseData.data[0]))
-                }
-            })
-            .catch(error => {
-                console.log(error)
-                throw error
-            });
+        await axios.get(defaultBaseUrl![0] + '/selectAll').then(async (response: any) => {
+            const responseData = response.data;
+            if (responseData.status == 200) {
+                const students = responseData.data;
+                // optional
+                students.forEach((student: any) => {
+                    student.imageProfile = student.imageProfile.replace('B:\\practice-nodejs-php-typescript-angular\\applications\\Project-React\\lab-react-hooks-and-formik-for-spring-boot-crud\\src\\assets\\images\\', 'src/assets/images/');
+                })
+                setStudents(students);
+                setStudentHeader(Object.keys(responseData.data[0]))
+            }
+        }).catch(error => {
+            throw error
+        });
     }
 
     // ** when you use to on<Event>={} you can do custom parameters by onSetDefaultUpdateStudent.bind(null,<custom param 1>,<custom param 2> ,...)
-    function onSetDefaultUpdateStudent(student: Student, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    function onSetDefaultUpdateStudent(student: Student, event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         event && setStudent(student)
     }
 
-    async function onDeleteStudent(sid: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    async function onDeleteStudent(sid: number, event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
         if (event) {
-            await axios.delete(defaultBaseUrl + '/deleteOne/'+sid).then(async (response: any) => {
+            await axios.delete(defaultBaseUrl![0] + '/deleteOne/' + sid).then(async (response: any) => {
                 const responseData = response.data;
                 if (responseData.status == 202) {
                     setMode({mode: 'delete'})
                 }
             }).catch(error => {
-                console.log(error)
                 throw error
             });
         }
     }
 
-    function StudentHeaderComponent() {
+    function StudentHeaderComponent(): JSX.Element {
         return (
             <tr className={"table table-secondary"}>
                 {
@@ -84,7 +81,7 @@ export function CrudStudentComponent() {
         )
     }
 
-    function StudentRowComponent({student, index}: { student: any | Student, index: number }) {
+    function StudentRowComponent({student, index}: { student: any | Student, index: number }): JSX.Element {
         return (
             <tr key={index}>
                 {
@@ -93,7 +90,7 @@ export function CrudStudentComponent() {
                             (<td key={student[header]}>{student[header]}</td>) :
                             (<td key={student[header]}>
                                 {student[header] != null ?
-                                 <img src={student[header]} width={40} height={40} alt={"..."}/> : ''}
+                                    <img src={student[header]} width={40} height={40} alt={"..."}/> : ''}
                             </td>)
                     ))
                 }
@@ -124,20 +121,19 @@ export function CrudStudentComponent() {
         )
     }
 
-    function StudentFormCreateComponent() {
+    function StudentFormCreateComponent(): JSX.Element {
         const onSubmit = async (student: Student) => {
-            const formData : FormData = new FormData();
+            const formData: FormData = new FormData();
             student.birthdayYear = new Date(student.birthdayYear).getFullYear()
             // set student as json type is importance because it's application/octet-stream type
             formData.append('student', new Blob([JSON.stringify(student)], {type: 'application/json'}))
             formData.append('file', imageProfile!)
-            await axios.post(defaultBaseUrl + '/insertOne', formData).then(async (response: any) => {
+            await axios.post(defaultBaseUrl![0] + '/insertOne', formData).then(async (response: any) => {
                 const responseData = response.data;
                 if (responseData.status == 201) {
                     setMode({mode: 'insert'})
                 }
             }).catch(error => {
-                console.log(error)
                 throw error
             });
         }
@@ -205,7 +201,6 @@ export function CrudStudentComponent() {
                                    inputMode="numeric"
                                    onInvalid={(event: any) => {
                                        event.target.setCustomValidity("Invalid zipcode");
-                                       // console.log(event.target.validate);
                                    }}
                                    onInput={(event: any) => {
                                        event.target.setCustomValidity("");
@@ -260,28 +255,27 @@ export function CrudStudentComponent() {
         )
     }
 
-    function StudentFormUpdateComponent({student}: { student: Student }) {
-        const  onSubmit = async (student: Student) => {
-            const formData : FormData = new FormData();
+    function StudentFormUpdateComponent({student}: { student: Student }): JSX.Element {
+        const onSubmit = async (student: Student) => {
+            const formData: FormData = new FormData();
             student.birthdayYear = birthdayYear?.getFullYear()!
             formData.append('student', new Blob([JSON.stringify(student)], {type: 'application/json'}))
             formData.append('file', imageProfile!)
-            await axios.put(defaultBaseUrl + '/updateOne', formData).then(async (response: any) => {
+            await axios.put(defaultBaseUrl![0] + '/updateOne', formData).then(async (response: any) => {
                 const responseData = response.data;
                 if (responseData.status == 202) {
                     setMode({mode: 'update'})
                 }
             }).catch(error => {
-                console.log(error)
                 throw error
             });
         }
 
-        const onReset = () => {
+        const onReset = (): void => {
             setStudent(student)
             setStudent(prevState => ({
                 ...prevState,
-                imageProfile : ''
+                imageProfile: ''
             }))
         }
 
@@ -335,7 +329,7 @@ export function CrudStudentComponent() {
                                    maxLength="5"
                                    minLength="5"
                                    inputMode="numeric"
-                                   onInvalid={(event: any) => event.target.setCustomValidity("Invalid zipcode") }
+                                   onInvalid={(event: any) => event.target.setCustomValidity("Invalid zipcode")}
                                    onInput={(event: any) => event.target.setCustomValidity("")}
                                    placeholder="Zipcode..."
                                    required/>
@@ -347,7 +341,7 @@ export function CrudStudentComponent() {
                                        imageProfile = event.target.files[0];
                                    }}
                                    className="form-control"
-                                   />
+                            />
                         </div>
                         <div className="input-group mb-3">
                             Status
@@ -388,14 +382,12 @@ export function CrudStudentComponent() {
             <div className="card-body">
                 <table className="table">
                     <thead>
-                    {
-                        <StudentHeaderComponent/>
-                    }
+                        {<StudentHeaderComponent/>}
                     </thead>
                     <tbody>
-                    {
-                        (students && students.length > 0) && students.map((student: Student, index: number) => (<StudentRowComponent student={student} index={index} key={index}/>))
-                    }
+                        {
+                         (students && students.length > 0) && students.map((student: Student, index: number) => (<StudentRowComponent student={student} index={index} key={index}/>))
+                        }
                     </tbody>
                 </table>
             </div>
@@ -414,7 +406,8 @@ export function CrudStudentComponent() {
                                 id="exampleModalLabel">
                                 Form Update Student Id {student?.sid}
                             </h5>
-                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
                             <StudentFormUpdateComponent student={student}/>
